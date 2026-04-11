@@ -1,8 +1,8 @@
 from diffusers import StableDiffusionPipeline
+from datetime import datetime
 import torch
 import sys
 import argparse
-import hashlib
 
 # folder where the stable diffusion safetensors and json config is at
 model = "./stable_diffusion-1.5"
@@ -14,7 +14,7 @@ torch.set_num_threads(12)
 def main():
     """
     Create the Stable Diffusion Pipeline then save the image created
-    as sha256 file in img/ folder, user prompts are from command line with -p or --p
+    as with timestamp UUID in img/ folder, user prompts are from command line with -p or --p
     """
     user_prompt = command_line()
 
@@ -27,11 +27,11 @@ def main():
 
     pipe = pipe.to(device)
 
-    # for now using sha256 but will probably change to timestamp for UUID of each image
-    file_name = "./img/" + shortened_sha256(user_prompt) + ".png"
+    # gets current timestamp and names the file that
+    file_name = "./img/" + time_stamp() + ".png"
 
     # can change interations and guidance scale for higher or lower quality images, although they would take more time
-    image = pipe(user_prompt, num_inference_steps=20, guidance_scale=7.5).images[0]
+    image = pipe(user_prompt, num_inference_steps=25, guidance_scale=9).images[0]
     image.save(file_name)
     print("Saved File: ", file_name)
     print("Program Finished")
@@ -56,17 +56,13 @@ def command_line() -> str:
     return args.prompt
 
 
-def shortened_sha256(input_str: str) -> str:
+def time_stamp() -> str:
     """
-    Compute SHAKE-256 of the UTF-8 encoding of input_str, request 20 bytes,
-    then truncate to 16 bytes and return as a 32-char hex string.
-    Used for main UUID for each image generated
+    gets timestamp signature and returns
     """
-    h = hashlib.shake_256(input_str.encode('utf-8'))
-    full_hex = h.hexdigest(20)           # 20 bytes -> 40 hex chars
-    full_bytes = bytes.fromhex(full_hex) # length 20
-    reduced_bytes = full_bytes[:16]      # length 16
-    return reduced_bytes.hex()           # 32 hex chars
+    now = datetime.now()
+    timestring = f'{now.year}-{now.month}-{now.day}__{now.hour}:{now.minute}:{now.second}'
+    return timestring
 
 
 if __name__ == '__main__':

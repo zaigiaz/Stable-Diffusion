@@ -1,4 +1,3 @@
-# run_sd15.py
 from diffusers import StableDiffusionPipeline
 import torch
 import sys
@@ -28,12 +27,15 @@ def main():
 
     pipe = pipe.to(device)
 
+    # for now using sha256 but will probably change to timestamp for UUID of each image
     file_name = "./img/" + shortened_sha256(user_prompt) + ".png"
 
+    # can change interations and guidance scale for higher or lower quality images, although they would take more time
     image = pipe(user_prompt, num_inference_steps=20, guidance_scale=7.5).images[0]
     image.save(file_name)
     print("Saved File: ", file_name)
     print("Program Finished")
+
 
 def command_line() -> str:
     """
@@ -58,6 +60,7 @@ def shortened_sha256(input_str: str) -> str:
     """
     Compute SHAKE-256 of the UTF-8 encoding of input_str, request 20 bytes,
     then truncate to 16 bytes and return as a 32-char hex string.
+    Used for main UUID for each image generated
     """
     h = hashlib.shake_256(input_str.encode('utf-8'))
     full_hex = h.hexdigest(20)           # 20 bytes -> 40 hex chars

@@ -1,0 +1,4 @@
+# ignore all executables and personal notes
+*.exe
+*.out
+stable_diffusion-1.5

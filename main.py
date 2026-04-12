@@ -15,7 +15,7 @@ model = "./stable_diffusion-1.5"
 
 # if no gpu, then use cpu inference
 device = "cuda" if torch.cuda.is_available() else "cpu"
-torch.set_num_threads(12)
+torch.set_num_threads(10)
 
 def main():
     """
@@ -83,7 +83,7 @@ def img_pipeline(user_prompt, img_path):
         prompt=user_prompt,
         image=init_image,
         strength=0.6,
-        num_inference_steps=20,
+        num_inference_steps=25,
         guidance_scale=7.5
     ).images[0]
 
@@ -106,13 +106,12 @@ def command_line() -> tuple[str, str]:
     parser.add_argument('-i', '--image', type=str)
     args = parser.parse_args()
 
-
     if args.prompt == None or args.prompt == "":
         print("no user prompt was added. \n usage: python3 main.py -p 'fantasy landscape'")
         sys.exit()
 
-    if not os.path.isfile(args.image):
-        raise FileNotFoundError(f"Image not found: {args.image}")
+    if args.image and not os.path.isfile(args.image):
+        raise FileNotFoundError(f"Image not found: {img_path}")
 
     return args.prompt, args.image
 
@@ -122,7 +121,7 @@ def time_stamp() -> str:
     gets timestamp signature and returns
     """
     now = datetime.now()
-    timestring = f'{now.year}-{now.month}-{now.day}__{now.hour}:{now.minute}:{now.second}'
+    timestring = f'{now.year}-{now.month}-{now.day}__{now.hour}-{now.minute}-{now.second}'
     return timestring
 
 

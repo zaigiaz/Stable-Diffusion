@@ -4,10 +4,9 @@ This is a repo for my stable-diffusion-1.5 experiments and with other
 2021-2023 diffusion models to get them to intentionally create wierd, offputting art
 
 - models used: https://huggingface.co/Jiali/stable-diffusion-1.5
-
 - other models you could use: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
 
-** How to setup
+** How to setup / Installation
 
 You need these python3 packages:
 - torch 
@@ -16,9 +15,12 @@ You need these python3 packages:
 - transformers
 - accelerate
 - safetensors
+- pillow
+
+I also have a ~requirements.txt~ if you're using venv
 
 download the safetensors models from the hugging-face repo, but not the pytorch.bin models,
-You will probably have to either use wget or another download tool to quickly get all the json and model files for each dir
+You will probably have to either use wget or another download tool to quickly get all the json and model files for each directory.
 
 ** Directories Needed and files
 - the main safetensors model
@@ -31,4 +33,5 @@ You will probably have to either use wget or another download tool to quickly ge
 - vae/
 
 You should always make sure to grab the safetensors models as they are the updated ones that have
-faster serialization and are a more safer modern format
+faster serialization and are a safer file format. Under each directory just grab the json and safetensors files. You can include
+the safety features if you want, but they aren't needed.

@@ -1,0 +1,18 @@
+* TODO :: combine both pipelines into one function
+* TODO :: JSON file batching
+for long workloads and choosing later on
+
+* TODO :: better error checking
+* TODO :: Seed Generators and other sampling techniques
+* TODO :: swap out and load different models
+Good and easy win
+
+* TODO :: LoRas and easy LoRa generation for end users
+Might be the hardest but definitly the best feature-wise thing I can create
+
+* TODO :: GUI interface for everything (Tkinter or PyGUI) (fuzzy pickers etc), img display
+I saw how chip had his python interface and I want fuzzy pickers for model, hypernetwork, LoRa choice
+I also want boxes for choosing prompts and anti-prompts
+
+* TODO :: Batch Processing, Worker Queue, etc.
+Could be good for large json file processing

@@ -48,7 +48,7 @@ def txt_pipeline(user_prompt):
     pipe = pipe.to(device)
 
     # can change interations and guidance scale for higher or lower quality images, although they would take more time
-    image = pipe(user_prompt, num_inference_steps=20, guidance_scale=7.5).images[0]
+    image = pipe(user_prompt, num_inference_steps=25, guidance_scale=7.0).images[0]
 
     # gets current timestamp and names the file that
     file_name = "./img/" + time_stamp() + ".png"
@@ -83,7 +83,7 @@ def img_pipeline(user_prompt, img_path):
         prompt=user_prompt,
         image=init_image,
         strength=0.6,
-        num_inference_steps=25,
+        num_inference_steps=20,
         guidance_scale=7.5
     ).images[0]
 

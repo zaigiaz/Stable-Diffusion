@@ -4,7 +4,7 @@ This is a repo for my stable-diffusion-1.5 experiments and with other
 2021-2023 diffusion models to get them to intentionally create wierd, offputting art
 
 - models used: https://huggingface.co/Jiali/stable-diffusion-1.5
-- other models you could use: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0
+- other models you could use: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0 (Best Choice for Quality)
 
 ** How to setup / Installation
 

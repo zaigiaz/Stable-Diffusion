@@ -1,11 +1,26 @@
-from diffusers import StableDiffusionPipeline
-from diffusers import StableDiffusionImg2ImgPipeline
 from datetime import datetime
 from PIL import Image
 import torch
 import os
 import sys
 import argparse
+
+from diffusers import (
+    StableDiffusionPipeline,
+    StableDiffusionImg2ImgPipeline,
+    EulerAncestralDiscreteScheduler,
+    EulerDiscreteScheduler,
+    DDIMScheduler,
+    DPMSolverMultistepScheduler,
+)
+
+# Map between different seeds and schedulers
+SCHEDULER_MAP = {
+    "euler_a": EulerAncestralDiscreteScheduler,
+    "euler":   EulerDiscreteScheduler,
+    "ddim":    DDIMScheduler,
+    "dpm++_2m": DPMSolverMultistepScheduler,
+}
 
 # make the image directory where the images will be saved
 os.makedirs("./img", exist_ok=True)
@@ -24,21 +39,24 @@ def main():
     # returns prompt and img if the path was inserted
     user_prompt, img_path = command_line()
 
-    if img_path == None or img_path == "":
-        txt_pipeline(user_prompt)
-    else:
-        img_pipeline(user_prompt, img_path)
+    # generates stable diffusion pipeline
+    pipe = pipeline(img_path)
+    
+    # main generation pipeline
+    generate(pipe, user_prompt, img_path)
 
     print("Program Has Ended")
     sys.exit(0)
 
 
-def txt_pipeline(user_prompt):
+# TODO :: Change this to main pipeline later
+def pipeline(img):
     """
-    Uses the basic Stable DIffusion Pipeline to get output of image from text prompt, we use
-    this pipeline when no example image is given and we just rely on given text input
+    Load the main pipeline for use in our system
     """
-    pipe = StableDiffusionPipeline.from_pretrained(
+    MainPipeline = StableDiffusionImg2ImgPipeline if img else StableDiffusionPipeline
+
+    pipe = MainPipeline.from_pretrained(
         model,
         local_files_only=True,                         
         torch_dtype=torch.float16 if device == "cuda" else torch.float32,
@@ -46,50 +64,40 @@ def txt_pipeline(user_prompt):
     )
 
     pipe = pipe.to(device)
+    return pipe
 
-    # can change interations and guidance scale for higher or lower quality images, although they would take more time
-    image = pipe(user_prompt, num_inference_steps=25, guidance_scale=7.0).images[0]
+
+# TODO :: Change this to main pipeline later
+def generate(pipe, user_prompt, img_path):
+    """
+    Generate an image either with a text prompt or additional image
+    """
+    if not img_path:
+        output = pipe(user_prompt, num_inference_steps=25, guidance_scale=7.0).images[0]
+    else:
+        # load with PIL and ensure RGB
+        init_image = Image.open(img_path).convert("RGB")
+        
+        # resize to multiples of 8
+        w, h = init_image.size
+        new_w, new_h = (w // 8) * 8, (h // 8) * 8
+
+        if (new_w, new_h) != (w, h):
+            init_image = init_image.resize((new_w, new_h), resample=Image.LANCZOS)
+
+        output = pipe(
+            prompt=user_prompt,
+            image=init_image,
+            strength=0.6,
+            num_inference_steps=20,
+            guidance_scale=7.5
+        ).images[0]
 
     # gets current timestamp and names the file that
     file_name = "./img/" + time_stamp() + ".png"
 
-    image.save(file_name)
+    output.save(file_name)
     print("Saved File: ", file_name)
-    
-
-def img_pipeline(user_prompt, img_path):
-    """
-    Uses the img2img pipeline for stable diffusion to use an example image as input for prompt as well
-    """
-    pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
-        model,
-        torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-        local_files_only=True,
-        safety_checker=None,
-    )
-
-    pipe = pipe.to(device)
-
-    # load with PIL and ensure RGB
-    init_image = Image.open(img_path).convert("RGB")
-
-    # resize to multiples of 8
-    w, h = init_image.size
-    new_w, new_h = (w // 8) * 8, (h // 8) * 8
-    if (new_w, new_h) != (w, h):
-        init_image = init_image.resize((new_w, new_h), resample=Image.LANCZOS)
-
-    result = pipe(
-        prompt=user_prompt,
-        image=init_image,
-        strength=0.6,
-        num_inference_steps=20,
-        guidance_scale=7.5
-    ).images[0]
-
-    file_name = "./img/" + time_stamp() + ".png"
-    result.save(file_name)
-    print("Saved File:", file_name)
 
 
 def command_line() -> tuple[str, str]:
@@ -110,8 +118,11 @@ def command_line() -> tuple[str, str]:
         print("no user prompt was added. \n usage: python3 main.py -p 'fantasy landscape'")
         sys.exit()
 
-    if args.image and not os.path.isfile(args.image):
-        raise FileNotFoundError(f"Image not found: {img_path}")
+    if args.image:
+        if not os.path.exists(args.path):
+            raise FileNotFoundError(f"not a valid file path {img_path}")
+        if not os.path.isfile(args.image):
+            raise FileNotFoundError(f"not a file: {img_path}")
 
     return args.prompt, args.image
 

@@ -1,18 +1,27 @@
-* TODO :: combine both pipelines into one function
+* TODO :: Check for valid image path in arg-parsing
+I need this to finish combining pipelines
+
 * TODO :: JSON file batching
 for long workloads and choosing later on
 
 * TODO :: better error checking
+I want assertions, test cases, etc.
+
 * TODO :: Seed Generators and other sampling techniques
+Make very modular and easy to use
+
 * TODO :: swap out and load different models
-Good and easy win
+Good and easy win, good for modifiability.
 
 * TODO :: LoRas and easy LoRa generation for end users
 Might be the hardest but definitly the best feature-wise thing I can create
+Would require the user to have powerful enough GPU to be able to train models
 
 * TODO :: GUI interface for everything (Tkinter or PyGUI) (fuzzy pickers etc), img display
 I saw how chip had his python interface and I want fuzzy pickers for model, hypernetwork, LoRa choice
-I also want boxes for choosing prompts and anti-prompts
+I also want boxes for choosing prompts and anti-prompts, etc
+Keyboard-driven Command stuff
+Tag-based image retrieval for fast lookup of ideas
 
 * TODO :: Batch Processing, Worker Queue, etc.
-Could be good for large json file processing
+Could be good for large json file processing, load-balancing

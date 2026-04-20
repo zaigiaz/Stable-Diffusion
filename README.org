@@ -5,6 +5,7 @@ This is a repo for my stable-diffusion-1.5 experiments and with other
 
 - models used: https://huggingface.co/Jiali/stable-diffusion-1.5
 - other models you could use: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0 (Best Choice for Quality)
+- for sketch and fill workflows https://huggingface.co/TencentARC/t2i-adapter-sketch-sdxl-1.0
 
 ** How to setup / Installation
 
@@ -22,7 +23,7 @@ I also have a ~requirements.txt~ if you're using venv
 download the safetensors models from the hugging-face repo, but not the pytorch.bin models,
 You will probably have to either use wget or another download tool to quickly get all the json and model files for each directory.
 
-** Directories Needed and files
+** Directories Needed and files for Diffusion Models
 - the main safetensors model
 - model_index.json
 - feature_extractor/

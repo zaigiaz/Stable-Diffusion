@@ -1,5 +1,6 @@
 from datetime import datetime
 from PIL import Image
+from json.decoder import JSONDecodeError
 import torch
 import os
 import json
@@ -40,10 +41,11 @@ def main():
     # returns prompt and img if the path was inserted
     user_prompt, img_path, json_path = command_line()
 
+    # read json file
     if json_path:
         read_json(json_path)
 
-    # generates stable diffusion pipeline
+    # generates stable diffusion pipeline for our use
     pipe = pipeline(img_path)
     
     # main generation pipeline
@@ -103,24 +105,43 @@ def generate(pipe, user_prompt, img_path):
 
 
 
+# TODO :: finish this function, probably need to wait until we have better interface
+def choose_scheduler():
+    """
+    Choose the scheduler you want to use with your image pipeline, if
+    none then default to the basic stable-diffusion template
+    """
+    print("hello")
+
+
+
 def read_json(json_path):
     """
     Reads from a json file with a specified schema
     """
-    print("hello, json path activated")
+    try:
+        with open(json_path, mode='r') as json_file:
+            data = json.load(json_file)
+            # returns a dict
+            # json is key-value seperated file with arrays and other features
+            print(data["hello"])
+            # TODO :: pull out each list of variables from json for each prompt and feed to pipeline
+            
+    except FileNotFoundError:
+        print("File not found!")
+    except JSONDecodeError:
+        print("Invalid JSON format!")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
     
-    with open(json_path, mode='r') as json_file:
-        json.load(json_file)
-
     sys.exit(0)
 
 
+# TODO :: fill this out or another seperate function for error checking
 def check_valid_path():
     """
     error checking function when opening files
     """
-    print("hello")
-
 
 def command_line() -> tuple[str, str]:
     """

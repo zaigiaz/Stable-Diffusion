@@ -1,0 +1,22 @@
+[
+{
+    "prompt": "a twisted cathedral, hyper‑real, dripping neon blood",
+    "output_name": "twisted_cathedral",
+    "sampler": "euler_a",
+    "steps": 30,
+    "cfg": 7.0,
+    "seed": 12345,
+    "strength": 0.6,
+    "image": null
+},
+{
+    "prompt": "portrait of a faceless clown, low‑poly, glitch texture",
+    "output_name": "faceless_clown",
+    "sampler": "ddim",
+    "steps": 25,
+    "cfg": 5.0,
+    "seed": null,
+    "strength": 0.7,
+    "image": null   
+}
+]

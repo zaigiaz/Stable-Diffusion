@@ -87,7 +87,7 @@ def generate(pipe, user_prompt, img_path):
     Generate an image either with a text prompt or additional image
     """
     if not img_path:
-        output = pipe(user_prompt, num_inference_steps=25, guidance_scale=7.0).images[0]
+        output = pipe(user_prompt, num_inference_steps=25, guidance_scale=7.5).images[0]
     else:
         # load with PIL and ensure RGB
         init_image = Image.open(img_path).convert("RGB")
@@ -117,6 +117,7 @@ def generate(pipe, user_prompt, img_path):
 def read_json(json_path):
     """
     Reads from a json file with a specified schema
+    returns a list of tuples?
     """
     try:
         with open(json_path, mode='r') as json_file:
@@ -137,10 +138,16 @@ def read_json(json_path):
 
 
 # TODO :: fill this out or another seperate function for error checking
-def check_valid_path():
+def check_valid_path(path_string):
     """
     error checking function when opening files
     """
+    if not os.path.exists(args.json):
+        raise FileNotFoundError(f"not a valid file path {path_string}")
+    if not os.path.isfile(args.json):
+        raise FileNotFoundError(f"not a file: {path.string}")
+    
+
 
 def command_line() -> tuple[str, str]:
     """
@@ -160,21 +167,15 @@ def command_line() -> tuple[str, str]:
     parser.add_argument('-s', '--scheduler', type=str)
     args = parser.parse_args()
 
-    if args.prompt == None or args.prompt == "":
+    if args.prompt == None and args.json == None or args.prompt == "":
         print("no user prompt was added. \n usage: python3 main.py -p 'fantasy landscape'")
         sys.exit()
 
     if args.json:
-        if not os.path.exists(args.json):
-            raise FileNotFoundError(f"not a valid file path {args.json}")
-        if not os.path.isfile(args.json):
-            raise FileNotFoundError(f"not a file: {args.json}")
-    
+        check_valid_path(args.json)
+
     if args.image:
-        if not os.path.exists(args.image):
-            raise FileNotFoundError(f"not a valid file path {args.image}")
-        if not os.path.isfile(args.image):
-            raise FileNotFoundError(f"not a file: {args.image}")
+        check_valid_path(args.image)
 
     return args.prompt, args.image, args.json, args.scheduler
 

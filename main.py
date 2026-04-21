@@ -32,21 +32,21 @@ model = "./stable_diffusion-1.5"
 
 # if no gpu, then use cpu inference
 device = "cuda" if torch.cuda.is_available() else "cpu"
-torch.set_num_threads(10)
+torch.set_num_threads(14)
 
 def main():
     """
     read the prompts from the command line parser and choose either text or image and text pipeline
     """
     # returns prompt and img if the path was inserted
-    user_prompt, img_path, json_path = command_line()
+    user_prompt, img_path, json_path, scheduler = command_line()
 
     # read json file
     if json_path:
         read_json(json_path)
 
     # generates stable diffusion pipeline for our use
-    pipe = pipeline(img_path)
+    pipe = pipeline(img_path, scheduler)    
     
     # main generation pipeline
     generate(pipe, user_prompt, img_path)
@@ -55,7 +55,7 @@ def main():
     sys.exit(0)
 
 
-def pipeline(img):
+def pipeline(img, scheduler):
     """
     Load the main pipeline for use in our system
     """
@@ -67,6 +67,16 @@ def pipeline(img):
         torch_dtype=torch.float16 if device == "cuda" else torch.float32,
         safety_checker=None,                           
     )
+    
+    if scheduler:
+        # Get the scheduler class
+        scheduler_class = SCHEDULER_MAP.get(scheduler)
+
+        if scheduler_class:
+            pipe.scheduler = scheduler_class.from_config(pipe.scheduler.config)
+        else:
+            print(f"Warning: Scheduler '{scheduler}' not found. Using default.")
+
 
     pipe = pipe.to(device)
     return pipe
@@ -93,8 +103,8 @@ def generate(pipe, user_prompt, img_path):
             prompt=user_prompt,
             image=init_image,
             strength=0.6,
-            num_inference_steps=20,
-            guidance_scale=7.5
+            num_inference_steps=30,
+            guidance_scale=7.0
         ).images[0]
 
     # gets current timestamp and names the file that
@@ -102,17 +112,6 @@ def generate(pipe, user_prompt, img_path):
 
     output.save(file_name)
     print("Saved File: ", file_name)
-
-
-
-# TODO :: finish this function, probably need to wait until we have better interface
-def choose_scheduler():
-    """
-    Choose the scheduler you want to use with your image pipeline, if
-    none then default to the basic stable-diffusion template
-    """
-    print("hello")
-
 
 
 def read_json(json_path):
@@ -149,6 +148,7 @@ def command_line() -> tuple[str, str]:
     Usage: -p or --prompt then your text input
     Usage: -i or --image for the input image you want as guidance
     Usage: -j or --json for the json file to read, for multiple prompts
+    Usage: -s or --scheduler for different schedulers to use
     """
     parser = argparse.ArgumentParser(
         prog='diffusion',
@@ -157,6 +157,7 @@ def command_line() -> tuple[str, str]:
     parser.add_argument('-p', '--prompt', type=str)
     parser.add_argument('-i', '--image', type=str)
     parser.add_argument('-j', '--json', type=str)
+    parser.add_argument('-s', '--scheduler', type=str)
     args = parser.parse_args()
 
     if args.prompt == None or args.prompt == "":
@@ -175,7 +176,7 @@ def command_line() -> tuple[str, str]:
         if not os.path.isfile(args.image):
             raise FileNotFoundError(f"not a file: {args.image}")
 
-    return args.prompt, args.image, args.json
+    return args.prompt, args.image, args.json, args.scheduler
 
 
 def time_stamp() -> str:

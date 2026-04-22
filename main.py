@@ -42,7 +42,7 @@ def main():
     user_prompt, img_path, json_path, scheduler = command_line()
 
     # read json file
-    if json_path:
+    if json_path:        
         read_json(json_path)
 
     # generates stable diffusion pipeline for our use
@@ -122,9 +122,12 @@ def read_json(json_path):
     try:
         with open(json_path, mode='r') as json_file:
             data = json.load(json_file)
+
             # returns a dict
             # json is key-value seperated file with arrays and other features
-            print(data["hello"])
+
+            print(data[0]["cfg"])
+
             # TODO :: pull out each list of variables from json for each prompt and feed to pipeline
             
     except FileNotFoundError:
@@ -142,11 +145,11 @@ def check_valid_path(path_string):
     """
     error checking function when opening files
     """
-    if not os.path.exists(args.json):
+    if not os.path.exists(path_string):
         raise FileNotFoundError(f"not a valid file path {path_string}")
-    if not os.path.isfile(args.json):
-        raise FileNotFoundError(f"not a file: {path.string}")
-    
+    if not os.path.isfile(path_string):
+        raise FileNotFoundError(f"not a file: {path_string}")
+        
 
 
 def command_line() -> tuple[str, str]:

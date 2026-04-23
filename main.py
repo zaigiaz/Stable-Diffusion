@@ -41,15 +41,18 @@ def main():
     # returns prompt and img if the path was inserted
     user_prompt, img_path, json_path, scheduler = command_line()
 
-    # read json file
-    if json_path:        
-        read_json(json_path)
+    # if the user didnt give json file full of prompts, then default to command line args
+    if not json:
+        # generates stable diffusion pipeline for our use
+        pipe = pipeline(img_path, scheduler)    
+        # main generation pipeline
+        generate(pipe, user_prompt, img_path)
 
-    # generates stable diffusion pipeline for our use
-    pipe = pipeline(img_path, scheduler)    
-    
-    # main generation pipeline
-    generate(pipe, user_prompt, img_path)
+    # read json file, batch path instead of single prompt, can specify more variables
+    else:        
+        read_json(json_path)
+        sys.exit(0)
+
 
     print("Program Has Ended")
     sys.exit(0)
@@ -123,11 +126,12 @@ def read_json(json_path):
         with open(json_path, mode='r') as json_file:
             data = json.load(json_file)
 
-            # returns a dict
-            # json is key-value seperated file with arrays and other features
-
-            print(data[0]["cfg"])
-
+            for i in range(len(data)):
+                prompt = data[i]["prompt"]
+                sampler = data[i]["sampler"]
+                pipe = pipeline(None, sampler)
+                generate(pipe, prompt, None)
+                
             # TODO :: pull out each list of variables from json for each prompt and feed to pipeline
             
     except FileNotFoundError:
@@ -137,8 +141,6 @@ def read_json(json_path):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
     
-    sys.exit(0)
-
 
 # TODO :: fill this out or another seperate function for error checking
 def check_valid_path(path_string):
